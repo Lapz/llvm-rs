@@ -3,7 +3,6 @@
 exclude = [ ".gitignore", ".travis.yml" ]
 authors = [ "Tom Bebbington <tophattedcoder@gmail.com>" ]
 description = "A wrapper for LLVM, a powerful library and toolkit for compilers"
-documentation = "https://tombebbington.github.io/llvm-rs/llvm/index.html"
 keywords = [ "compile", "compiler", "jit", "interpreter" ]
 license = "BSD-3-Clause"
 name = "llvm-alt"

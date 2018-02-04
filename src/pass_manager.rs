@@ -9,6 +9,7 @@ use ffi::transforms::vectorize::*;
 use ffi::transforms::ipo::*;
 use value::Value;
 
+/// The struct responsible for setting up optimization sequences
 pub struct PassManager(PhantomData<[u8]>);
 native_ref!{&PassManager = LLVMPassManagerRef}
 dispose!{PassManager,LLVMPassManager,core::LLVMDisposePassManager}
@@ -19,8 +20,9 @@ impl<'a> PassManager {
         unsafe { core::LLVMCreatePassManager() }.into()
     }
 
-    /// Create a new function pass manager for a given module
-    pub fn new_func_pass(module: &'a Module) -> &PassManager {
+    /// Create a new function pass manager for a given module. It runs the optimizations
+    /// on each function immediatly as it is generated
+    pub fn new_func_pass(module: &'a Module) -> CSemiBox<'a, PassManager> {
         unsafe { core::LLVMCreateFunctionPassManagerForModule(module.into()) }.into()
     }
     
@@ -43,8 +45,9 @@ impl<'a> PassManager {
 macro_rules! add_pass {
     ($name:ident, $passname:expr) => {
         impl <'a> PassManager {
-            pub fn $name(&self) {
+            pub fn $name(&mut self) -> &mut PassManager {
                 unsafe {$passname(self.into())};
+                self
             }
         }
     };
@@ -111,24 +114,29 @@ add_pass!{add_strip_symbols,LLVMAddStripSymbolsPass}
 
 use ffi::transforms::pass_manager_builder::*;
 
+/// Used to custimize a pass sequence in various ways
+/// For more information go to [llvm](http://llvm.org/doxygen/classllvm_1_1PassManagerBuilder.html)
 pub struct PassManagerBuilder(PhantomData<[u8]>);
 native_ref!{&PassManagerBuilder = LLVMPassManagerBuilderRef}
 dispose!{PassManagerBuilder,LLVMOpaquePassManagerBuilder,LLVMPassManagerBuilderDispose}
 
-
 impl <'a> PassManagerBuilder {
+    /// Create a new `PassManagerBuilder`
     pub fn new() -> CSemiBox<'a,PassManagerBuilder> {
         unsafe {LLVMPassManagerBuilderCreate()}.into()
     }
 
+    /// Specify the basic optimization level
     pub fn set_opt(&self,level:u32) {
         unsafe {LLVMPassManagerBuilderSetOptLevel(self.into(),level.into())};
     }
 
+    /// How much we're optimizing for size
     pub fn set_size(&self,level:u32) {
         unsafe {LLVMPassManagerBuilderSetOptLevel(self.into(),level.into())};
     }
 
+    /// 
     pub fn set_disable_simplify_lib_calls(&self,opt:bool) {
        unsafe{ LLVMPassManagerBuilderSetDisableSimplifyLibCalls(self.into(),opt as c_int)}
     }
@@ -167,8 +175,6 @@ impl <'a> PassManagerBuilder {
             LLVMPassManagerBuilderPopulateModulePassManager(self.into(),pass_manager.into())
         }
     }
-
-    
 
     pub fn populate_function_pass_manager(&self,pass_manager:&PassManager) {
         unsafe {

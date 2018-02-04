@@ -158,7 +158,9 @@ impl<'a> ExecutionEngine<'a> for JitEngine {
         unsafe {
             let mut ee = mem::uninitialized();
             let mut out = mem::zeroed();
+
             engine::LLVMLinkInMCJIT();
+            
             if target::LLVM_InitializeNativeTarget() == 1 {
                 return Err("failed to initialize native target".into());
             }
@@ -239,6 +241,7 @@ impl GenericValueCast for f64 {
         }
     }
 }
+
 impl GenericValueCast for f32 {
     fn to_generic(self, ctx: &Context) -> CSemiBox<GenericValue> {
         unsafe {
