@@ -23,6 +23,7 @@ pub mod types;
 pub mod value;
 mod util;
 mod pass_manager;
+mod lto;
 
 pub use cbox::{CBox, CSemiBox};
 pub use builder::Builder;
