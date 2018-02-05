@@ -70,16 +70,12 @@ native_ref!(&Target = LLVMTargetRef);
 impl Target {
     /// Returns the name of this target.
     pub fn get_name(&self) -> &str {
-        unsafe {
-            util::to_str(target_machine::LLVMGetTargetName(self.into())
-                as *mut c_char)
-        }
+        unsafe { util::to_str(target_machine::LLVMGetTargetName(self.into()) as *mut c_char) }
     }
     /// Returns the description of this target.
     pub fn get_description(&self) -> &str {
         unsafe {
-            util::to_str(target_machine::LLVMGetTargetDescription(self.into())
-                as *mut c_char)
+            util::to_str(target_machine::LLVMGetTargetDescription(self.into()) as *mut c_char)
         }
     }
 

@@ -160,7 +160,7 @@ impl<'a> ExecutionEngine<'a> for JitEngine {
             let mut out = mem::zeroed();
 
             engine::LLVMLinkInMCJIT();
-            
+
             if target::LLVM_InitializeNativeTarget() == 1 {
                 return Err("failed to initialize native target".into());
             }

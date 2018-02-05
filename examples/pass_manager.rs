@@ -1,7 +1,6 @@
 extern crate llvm;
 
-use llvm::{Context,Module,Builder,PassManager};
-
+use llvm::{Builder, Context, Module, PassManager};
 
 fn main() {
     let ctx = Context::new();
@@ -9,8 +8,11 @@ fn main() {
     let builder = Builder::new(&ctx);
 
     let mut fpm = PassManager::new_func_pass(&module);
-    
-    fpm.add_instruction_combining().add_reassociate().add_gvn().add_cfg();
+
+    fpm.add_instruction_combining()
+        .add_reassociate()
+        .add_gvn()
+        .add_cfg();
 
     module
         .write_bitcode("out.bc")
@@ -18,8 +20,5 @@ fn main() {
 
     module.verify().unwrap();
 
-    
-
-    
     println!("{:?}", module);
 }

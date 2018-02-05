@@ -6,7 +6,11 @@
 
 extern crate cbox;
 extern crate libc;
+#[cfg(feature = "expose_bindings")]
 pub extern crate llvm_sys as ffi;
+
+#[cfg(not(feature = "expose_bindings"))]
+extern crate llvm_sys as ffi;
 
 #[macro_use]
 mod macros;
@@ -24,6 +28,7 @@ pub mod value;
 mod util;
 mod pass_manager;
 mod lto;
+mod link_time_optimizer;
 
 pub use cbox::{CBox, CSemiBox};
 pub use builder::Builder;
@@ -39,7 +44,7 @@ pub use types::*;
 pub use value::{Alias, Arg, Attribute, Function, GlobalValue, GlobalVariable, Linkage, Predicate,
                 Value};
 pub use util::Sub;
-pub use pass_manager::{PassManager,PassManagerBuilder};
+pub use pass_manager::{PassManager, PassManagerBuilder};
 
 pub mod prelude {
 
