@@ -4,7 +4,7 @@ use cbox::CBox;
 use std::ffi::{CStr, CString};
 use libc::{c_char, c_uint};
 use object::Symbol;
-
+use context::Context;
 
 pub struct LTOCodeGenerator(*mut LLVMOpaqueLTOCodeGenerator);
 
