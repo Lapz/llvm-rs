@@ -27,8 +27,8 @@ pub mod types;
 pub mod value;
 mod util;
 mod pass_manager;
-mod lto;
-mod link_time_optimizer;
+pub mod lto;
+pub mod link_time_optimizer;
 
 pub use cbox::{CBox, CSemiBox};
 pub use builder::Builder;

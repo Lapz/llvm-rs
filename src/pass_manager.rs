@@ -85,7 +85,7 @@ add_pass!{add_scalar_repl_aggregates_ssa,LLVMAddScalarReplAggregatesPassSSA}
 add_pass!{add_scalarizer,LLVMAddScalarizerPass}
 add_pass!{add_scoped_no_alias_aa,LLVMAddScopedNoAliasAAPass}
 add_pass!{add_simplify_lib_calls,LLVMAddSimplifyLibCallsPass}
-add_pass!{add_add_tail_call_elimination,LLVMAddTailCallEliminationPass}
+add_pass!{add_tail_call_elimination,LLVMAddTailCallEliminationPass}
 add_pass!{add_type_based_alias_nalysis,LLVMAddTypeBasedAliasAnalysisPass}
 add_pass!{add_verifier,LLVMAddVerifierPass}
 
