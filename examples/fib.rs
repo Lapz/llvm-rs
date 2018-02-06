@@ -1,6 +1,6 @@
 extern crate llvm;
 use llvm::*;
-use llvm::Attribute::*;
+
 
 #[link(name = "ffi")]
 extern "C" {}
@@ -9,7 +9,6 @@ fn main() {
     let ctx = Context::new();
     let module = Module::new("simple", &ctx);
     let func = module.add_function("fib", Type::get::<fn(u64) -> u64>(&ctx));
-    // func.add_attributes(&[NoUnwind, ReadNone]);
     let value = &func[0];
     let entry = func.append("entry");
     let on_zero = func.append("on_zero");

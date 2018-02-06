@@ -1,9 +1,10 @@
 extern crate llvm;
 
-use llvm::{Builder, Compile, Context, Module, PassManager, PassRegistry, Type,TargetMachine};
+use llvm::{Builder, Compile, Context, Module, PassManager, PassRegistry, TargetMachine, Type,};
+use llvm::prelude::shutdown;
 
 fn main() {
-    TargetMachine::new();
+    // TargetMachine::new();
     let ctx = Context::new();
     let module = Module::new("main", &ctx);
     let builder = Builder::new(&ctx);
@@ -20,7 +21,6 @@ fn main() {
         .add_tail_call_elimination();
 
     let func = module.add_function("fib", Type::get::<fn(u64) -> u64>(&ctx));
-    // func.add_attributes(&[NoUnwind, ReadNone]);
     let value = &func[0];
     let entry = func.append("entry");
     let on_zero = func.append("on_zero");

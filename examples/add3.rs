@@ -20,4 +20,6 @@ fn main() {
     ee.with_function(func, |add: extern "C" fn((f64, f64, f64)) -> f64| {
         println!("{} + {} + {} = {}", 1., 2., 3., add((1., 2., 3.)));
     });
+
+    ee.remove_module(&module);
 }

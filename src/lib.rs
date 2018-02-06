@@ -39,7 +39,7 @@ pub use engine::{ExecutionEngine, GenericValue, GenericValueCast, Interpreter, J
                  JitOptions};
 pub use module::{AddressSpace, Functions, Module};
 pub use object::{ObjectFile, Symbol, Symbols};
-pub use target::{Target, TargetData,TargetMachine};
+pub use target::{Target, TargetData, TargetMachine};
 pub use types::*;
 pub use value::{Alias, Arg, Function, GlobalValue, GlobalVariable, Linkage, Predicate, Value};
 pub use util::Sub;

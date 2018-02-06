@@ -4,10 +4,10 @@ use ffi::target::*;
 use ffi::core::LLVMDisposeMessage;
 use std::ffi::{CStr, CString};
 use std::fmt;
-use std::marker::PhantomData;
 use types::Type;
 use util;
 use std::ptr;
+use pass_manager::PassManager;
 
 /// Represents an LLVM Target
 pub struct TargetData(LLVMTargetDataRef);
@@ -67,7 +67,7 @@ impl fmt::Display for TargetData {
 
 impl Drop for TargetData {
     fn drop(&mut self) {
-       unsafe{ LLVMDisposeTargetData(self.0)}
+        unsafe { LLVMDisposeTargetData(self.0) }
     }
 }
 
@@ -101,36 +101,41 @@ impl Target {
 pub struct TargetMachine(*mut LLVMOpaqueTargetMachine);
 
 impl TargetMachine {
+    
     pub fn new() -> Result<TargetMachine, String> {
-        let triple = unsafe{LLVMGetDefaultTargetTriple()};
+        let triple = unsafe { LLVMGetDefaultTargetTriple() };
 
-        let triple_str = unsafe{CStr::from_ptr(triple)}
+        let triple_str = unsafe { CStr::from_ptr(triple) }
             .to_str()
             .expect("Invalid target triple");
         let mut target = ptr::null_mut();
 
         let mut error = ptr::null_mut();
 
-        if unsafe {LLVMGetTargetFromTriple(triple, &mut target, &mut error) } != 0 {
-            let msg = unsafe{CStr::from_ptr(error)}.to_str().expect("Invalid C string");
+        if unsafe { LLVMGetTargetFromTriple(triple, &mut target, &mut error) } != 0 {
+            let msg = unsafe { CStr::from_ptr(error) }
+                .to_str()
+                .expect("Invalid C string");
             let e = format!(
                 "Unable to get an LLVM target reference for {}: {}",
                 triple_str, msg
             );
-           unsafe{ LLVMDisposeMessage(error)};
-            unsafe {LLVMDisposeMessage(triple)};
+            unsafe { LLVMDisposeMessage(error) };
+            unsafe { LLVMDisposeMessage(triple) };
             return Err(e);
         }
 
-        let target_machine =unsafe{ LLVMCreateTargetMachine(
-            target,
-            triple,
-            "".as_ptr() as *const c_char,
-            "".as_ptr() as *const c_char,
-            LLVMCodeGenOptLevel::LLVMCodeGenLevelDefault,
-            LLVMRelocMode::LLVMRelocPIC,
-            LLVMCodeModel::LLVMCodeModelDefault,
-        )};
+        let target_machine = unsafe {
+            LLVMCreateTargetMachine(
+                target,
+                triple,
+                "".as_ptr() as *const c_char,
+                "".as_ptr() as *const c_char,
+                LLVMCodeGenOptLevel::LLVMCodeGenLevelDefault,
+                LLVMRelocMode::LLVMRelocPIC,
+                LLVMCodeModel::LLVMCodeModelDefault,
+            )
+        };
 
         if target_machine.is_null() {
             let e = format!("Unable to get a LLVM target machine for {}", triple_str);
@@ -140,23 +145,21 @@ impl TargetMachine {
         Ok(TargetMachine(target_machine))
     }
 
-
     fn first_target(&self) -> Target {
-        unsafe {
-            Target(LLVMGetFirstTarget())
-        }
+        unsafe { Target(LLVMGetFirstTarget()) }
     }
 
-    fn next_target(&self,target:Target) -> Target {
-        unsafe {
-            Target(LLVMGetNextTarget(target.0))
-        }
+    fn next_target(&self, target: Target) -> Target {
+        unsafe { Target(LLVMGetNextTarget(target.0)) }
     }
 
-    fn get_description(&self,target:Target) -> &str {
+    fn get_description(&self, target: Target) -> &str {
         unimplemented!()
     }
 
+    fn analysis_passes(&self, pass_manager: &PassManager) {
+        unsafe { LLVMAddAnalysisPasses(self.0, pass_manager.into()) }
+    }
 }
 
 impl Drop for TargetMachine {
