@@ -1,8 +1,5 @@
 LLVM-rs
 =======
-[![Crate Version](https://img.shields.io/crates/v/llvm-alt.svg)](https://crates.io/crates/llvm-alt)
-[![Crate Downloads](https://img.shields.io/crates/d/llvm-alt.svg)](https://crates.io/crates/llvm-alt)
-[![Crate License](https://img.shields.io/crates/l/llvm-alt.svg)](https://crates.io/crates/llvm-alt)
 [![Build Status](https://travis-ci.org/Lapz/llvm-rs.svg?branch=master)](https://travis-ci.org/Lapz/llvm-rs)
 [![Dependency Status](https://dependencyci.com/github/Lapz/llvm-rs/badge)](https://dependencyci.com/github/Lapz/llvm-rs)
 
