@@ -39,12 +39,11 @@ pub use engine::{ExecutionEngine, GenericValue, GenericValueCast, Interpreter, J
                  JitOptions};
 pub use module::{AddressSpace, Functions, Module};
 pub use object::{ObjectFile, Symbol, Symbols};
-pub use target::{Target, TargetData};
+pub use target::{Target, TargetData,TargetMachine};
 pub use types::*;
-pub use value::{Alias, Arg, Attribute, Function, GlobalValue, GlobalVariable, Linkage, Predicate,
-                Value};
+pub use value::{Alias, Arg, Function, GlobalValue, GlobalVariable, Linkage, Predicate, Value};
 pub use util::Sub;
-pub use pass_manager::{PassManager, PassManagerBuilder};
+pub use pass_manager::{PassManager, PassManagerBuilder, PassRegistry};
 
 pub mod prelude {
 

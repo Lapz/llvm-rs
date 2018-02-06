@@ -82,10 +82,10 @@ impl Type {
             || kind == LLVMTypeKind::LLVMFloatTypeKind as c_uint
             || kind == LLVMTypeKind::LLVMDoubleTypeKind as c_uint
     }
-    /// Returns the size of the type in bytes.
-    pub fn get_size(&self, target: &TargetData) -> usize {
-        unsafe { target::LLVMABISizeOfType(target.into(), self.into()) as usize }
-    }
+    // Returns the size of the type in bytes.
+    // pub fn get_size(&self, target: &TargetData) -> usize {
+    //     unsafe { target::LLVMABISizeOfType(target.into(), self.into()) as usize }
+    // }
 }
 
 /// A structure type, such as a tuple or struct.

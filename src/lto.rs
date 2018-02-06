@@ -2,9 +2,10 @@ use ffi::lto::*;
 use std::ops::Drop;
 use cbox::CBox;
 use std::ffi::{CStr, CString};
-use libc::{c_char, c_uint};
+use libc::{c_char, c_uint, c_void};
 use object::Symbol;
 use context::Context;
+use std::mem;
 
 pub struct LTOCodeGenerator(*mut LLVMOpaqueLTOCodeGenerator);
 
@@ -42,6 +43,10 @@ pub enum LTOSymbolAttributes {
     ScopeCanBeHidden,
     Comdat,
     Alias,
+}
+
+pub enum LTODiagnosticSeverity {
+
 }
 
 impl LTOCodeGenerator {
@@ -121,11 +126,6 @@ impl LTOCodeGenerator {
         }
     }
 
-    ///
-    pub fn set_diagnostic_handler(&self) {
-        unimplemented!()
-    }
-
     ///Sets the object module for code gneeration. This will transfer ownership of the module to the code generator.
     pub fn set_module(&self, module: LTOModule) {
         unsafe { lto_codegen_set_module(self.get(), module.0) }
@@ -199,22 +199,46 @@ impl From<lto_symbol_attributes> for LTOSymbolAttributes {
     fn from(attribute: lto_symbol_attributes) -> LTOSymbolAttributes {
         match attribute {
             lto_symbol_attributes::LTO_SYMBOL_ALIGNMENT_MASK => LTOSymbolAttributes::MaskAlignment,
-            lto_symbol_attributes::LTO_SYMBOL_PERMISSIONS_MASK => LTOSymbolAttributes::MaskPermissions,
-            lto_symbol_attributes::LTO_SYMBOL_PERMISSIONS_CODE => LTOSymbolAttributes::CodePermissions,
-            lto_symbol_attributes::LTO_SYMBOL_PERMISSIONS_DATA => LTOSymbolAttributes::DataPermissions,
-            lto_symbol_attributes::LTO_SYMBOL_PERMISSIONS_RODATA => LTOSymbolAttributes::RoDataPermissions,
-            lto_symbol_attributes::LTO_SYMBOL_DEFINITION_MASK => LTOSymbolAttributes::MaskDefinition,
-            lto_symbol_attributes::LTO_SYMBOL_DEFINITION_REGULAR => LTOSymbolAttributes::RegularDefinition,
-            lto_symbol_attributes::LTO_SYMBOL_DEFINITION_TENTATIVE => LTOSymbolAttributes::TentativeDefinition,
-            lto_symbol_attributes::LTO_SYMBOL_DEFINITION_WEAK => LTOSymbolAttributes::WeakDefinition,
-            lto_symbol_attributes::LTO_SYMBOL_DEFINITION_UNDEFINED => LTOSymbolAttributes::UndefinedDefinition,
-            lto_symbol_attributes::LTO_SYMBOL_DEFINITION_WEAKUNDEF => LTOSymbolAttributes::WeakUndefindedDefinition,
+            lto_symbol_attributes::LTO_SYMBOL_PERMISSIONS_MASK => {
+                LTOSymbolAttributes::MaskPermissions
+            }
+            lto_symbol_attributes::LTO_SYMBOL_PERMISSIONS_CODE => {
+                LTOSymbolAttributes::CodePermissions
+            }
+            lto_symbol_attributes::LTO_SYMBOL_PERMISSIONS_DATA => {
+                LTOSymbolAttributes::DataPermissions
+            }
+            lto_symbol_attributes::LTO_SYMBOL_PERMISSIONS_RODATA => {
+                LTOSymbolAttributes::RoDataPermissions
+            }
+            lto_symbol_attributes::LTO_SYMBOL_DEFINITION_MASK => {
+                LTOSymbolAttributes::MaskDefinition
+            }
+            lto_symbol_attributes::LTO_SYMBOL_DEFINITION_REGULAR => {
+                LTOSymbolAttributes::RegularDefinition
+            }
+            lto_symbol_attributes::LTO_SYMBOL_DEFINITION_TENTATIVE => {
+                LTOSymbolAttributes::TentativeDefinition
+            }
+            lto_symbol_attributes::LTO_SYMBOL_DEFINITION_WEAK => {
+                LTOSymbolAttributes::WeakDefinition
+            }
+            lto_symbol_attributes::LTO_SYMBOL_DEFINITION_UNDEFINED => {
+                LTOSymbolAttributes::UndefinedDefinition
+            }
+            lto_symbol_attributes::LTO_SYMBOL_DEFINITION_WEAKUNDEF => {
+                LTOSymbolAttributes::WeakUndefindedDefinition
+            }
             lto_symbol_attributes::LTO_SYMBOL_SCOPE_MASK => LTOSymbolAttributes::MaskScope,
             lto_symbol_attributes::LTO_SYMBOL_SCOPE_INTERNAL => LTOSymbolAttributes::InternalScope,
             lto_symbol_attributes::LTO_SYMBOL_SCOPE_HIDDEN => LTOSymbolAttributes::HiddenScope,
-            lto_symbol_attributes::LTO_SYMBOL_SCOPE_PROTECTED => LTOSymbolAttributes::ProtectedScope,
+            lto_symbol_attributes::LTO_SYMBOL_SCOPE_PROTECTED => {
+                LTOSymbolAttributes::ProtectedScope
+            }
             lto_symbol_attributes::LTO_SYMBOL_SCOPE_DEFAULT => LTOSymbolAttributes::DefualtScope,
-            lto_symbol_attributes::LTO_SYMBOL_SCOPE_DEFAULT_CAN_BE_HIDDEN => LTOSymbolAttributes::ScopeCanBeHidden,
+            lto_symbol_attributes::LTO_SYMBOL_SCOPE_DEFAULT_CAN_BE_HIDDEN => {
+                LTOSymbolAttributes::ScopeCanBeHidden
+            }
             lto_symbol_attributes::LTO_SYMBOL_COMDAT => LTOSymbolAttributes::Comdat,
             lto_symbol_attributes::LTO_SYMBOL_ALIAS => LTOSymbolAttributes::Alias,
         }
@@ -230,11 +254,20 @@ impl LTOModule {
         self.0
     }
 
-
     /// Loads an object file into the same context as codegenerator. The module is safe to
     // add using `lto_codegen_add_module()`
-    fn with_context(&self,ctx:&Context) -> Result<(),String> {
-        unimplemented!()
+    pub fn with_context(mut ctx: &Context, path: &str) -> Result<(), String> {
+        let length = mem::size_of::<Context>();
+        let ctx_ptr: *mut c_void = &mut ctx as *mut _ as *mut c_void;
+        if unsafe {
+            lto_module_create_in_local_context(ctx_ptr, length, path.as_ptr() as *const c_char)
+        }.is_null()
+        {
+            let error = unsafe { CStr::from_ptr(lto_get_error_message()) };
+            Err(CString::from(error).into_string().unwrap())
+        } else {
+            Ok(())
+        }
     }
 
     /// Returns the module's linker options
@@ -286,8 +319,6 @@ impl LTOModule {
     pub fn is_thinlto(&self) -> bool {
         unsafe { lto_module_is_thinlto(self.get()) != 0 }
     }
-
-    
 }
 
 impl Drop for LTOModule {

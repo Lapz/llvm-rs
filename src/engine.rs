@@ -152,6 +152,7 @@ impl<'a> JitEngine {
         mem::transmute(ptr)
     }
 }
+
 impl<'a> ExecutionEngine<'a> for JitEngine {
     type Options = JitOptions;
     fn new(module: &'a Module, options: JitOptions) -> Result<CSemiBox<'a, JitEngine>, CBox<str>> {

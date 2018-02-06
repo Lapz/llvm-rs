@@ -1,13 +1,17 @@
 extern crate llvm;
 
-use llvm::{Builder, Compile, Context, Module, PassManager, Type};
-use llvm::Attribute::*;
+use llvm::{Builder, Compile, Context, Module, PassManager, PassRegistry, Type,TargetMachine};
+
 fn main() {
+    TargetMachine::new();
     let ctx = Context::new();
     let module = Module::new("main", &ctx);
     let builder = Builder::new(&ctx);
 
-    let mut fpm = PassManager::new_func_pass(&module);
+    let pm_reg = PassRegistry::new();
+    let fpm = PassManager::new_func_pass(&module);
+
+    pm_reg.init_all();
 
     fpm.add_instruction_combining()
         .add_reassociate()

@@ -8,6 +8,9 @@ use ffi::transforms::scalar::*;
 use ffi::transforms::vectorize::*;
 use ffi::transforms::ipo::*;
 use value::Value;
+use ffi::LLVMPassRegistry;
+use ffi::core::LLVMGetGlobalPassRegistry;
+use ffi::initialization::*;
 
 /// The struct responsible for setting up optimization sequences
 pub struct PassManager(PhantomData<[u8]>);
@@ -43,7 +46,7 @@ impl<'a> PassManager {
 macro_rules! add_pass {
     ($name:ident, $passname:expr) => {
         impl <'a> PassManager {
-            pub fn $name(&mut self) -> &mut PassManager {
+            pub fn $name(&self) -> &PassManager {
                 unsafe {$passname(self.into())};
                 self
             }
@@ -174,5 +177,102 @@ impl<'a> PassManagerBuilder {
         unsafe {
             LLVMPassManagerBuilderPopulateFunctionPassManager(self.into(), pass_manager.into())
         }
+    }
+}
+
+/// This class manages the registration and intitialization of
+/// the pass subsystem as application startup, and assists the PassManager
+/// in resolving pass dependencies
+pub struct PassRegistry(*mut LLVMPassRegistry);
+
+// Waiting on stabilisation of #13231
+//impl !Send for PassRegistry {}
+//impl !Sync for PassRegistry{}
+
+impl PassRegistry {
+    pub fn new() -> Self {
+        PassRegistry(unsafe { LLVMGetGlobalPassRegistry() })
+    }
+
+    pub fn init_all(&self) {
+        self.init_analyis()
+            .init_codegen()
+            .init_core()
+            .init_ipa()
+            .init_ipo()
+            .init_inst_combine()
+            .init_instrumentation()
+            .init_scalar_opts()
+            .init_target()
+            .init_transfrom_utils()
+            .init_vectorization();
+    }
+
+    fn get(&self) -> *mut LLVMPassRegistry {
+        self.0
+    }
+
+    pub fn init_analyis(&self) -> &PassRegistry {
+        unsafe { LLVMInitializeAnalysis(self.get()) }
+        self
+    }
+
+    pub fn init_codegen(&self) -> &PassRegistry {
+        unsafe { LLVMInitializeCodeGen(self.get()) }
+
+        self
+    }
+
+    pub fn init_core(&self) -> &PassRegistry {
+        unsafe { LLVMInitializeCore(self.get()) }
+
+        self
+    }
+
+    pub fn init_ipa(&self) -> &PassRegistry {
+        unsafe { LLVMInitializeIPA(self.get()) }
+
+        self
+    }
+
+    pub fn init_ipo(&self) -> &PassRegistry {
+        unsafe { LLVMInitializeIPO(self.get()) }
+
+        self
+    }
+
+    pub fn init_inst_combine(&self) -> &PassRegistry {
+        unsafe { LLVMInitializeInstCombine(self.get()) }
+
+        self
+    }
+
+    pub fn init_instrumentation(&self) -> &PassRegistry {
+        unsafe { LLVMInitializeInstrumentation(self.get()) }
+
+        self
+    }
+
+    pub fn init_scalar_opts(&self) -> &PassRegistry {
+        unsafe { LLVMInitializeScalarOpts(self.get()) }
+
+        self
+    }
+
+    pub fn init_target(&self) -> &PassRegistry {
+        unsafe { LLVMInitializeTarget(self.get()) }
+
+        self
+    }
+
+    pub fn init_transfrom_utils(&self) -> &PassRegistry {
+        unsafe { LLVMInitializeTransformUtils(self.get()) }
+
+        self
+    }
+
+    pub fn init_vectorization(&self) -> &PassRegistry {
+        unsafe { LLVMInitializeVectorization(self.get()) }
+        self
     }
 }
