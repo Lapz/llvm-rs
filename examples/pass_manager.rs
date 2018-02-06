@@ -1,10 +1,8 @@
 extern crate llvm;
 
-use llvm::{Builder, Compile, Context, Module, PassManager, PassRegistry, TargetMachine, Type,};
-use llvm::prelude::shutdown;
+use llvm::{Builder, Compile, Context, Module, PassManager, PassRegistry, Type};
 
 fn main() {
-    // TargetMachine::new();
     let ctx = Context::new();
     let module = Module::new("main", &ctx);
     let builder = Builder::new(&ctx);

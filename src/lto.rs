@@ -1,6 +1,5 @@
 use ffi::lto::*;
 use std::ops::Drop;
-use cbox::CBox;
 use std::ffi::{CStr, CString};
 use libc::{c_char, c_uint, c_void};
 use object::Symbol;

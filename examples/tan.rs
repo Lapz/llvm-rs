@@ -6,7 +6,6 @@ use llvm::*;
 extern "C" {}
 
 fn main() {
-    // TargetMachine::new().expect("Couldn't create target machine");
     let ctx = Context::new();
     let module = Module::new("simple", &ctx);
     let cos = module.add_function("llvm.cos.f64", Type::get::<fn(f64) -> f64>(&ctx));
@@ -22,7 +21,7 @@ fn main() {
     builder.build_ret(value);
     module.verify().unwrap();
     let ee = JitEngine::new(&module, JitOptions { opt_level: 0 }).unwrap();
-    
+
     ee.with_function(func, |tan: extern "C" fn(f64) -> f64| {
         for i in 0..10 {
             let i = i as f64;
@@ -31,5 +30,4 @@ fn main() {
     });
 
     ee.remove_module(&module);
-
 }

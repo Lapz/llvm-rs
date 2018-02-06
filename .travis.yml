@@ -41,3 +41,8 @@ script:
   - cargo bench --verbose
   - cargo run --example tan
   - cargo run --example fib
+  - cargo run --example add
+  - cargo run --example add3
+  - cargo run --example pass_manager
+  - cargo run --example demo_3f
+  

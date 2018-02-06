@@ -1,7 +1,6 @@
 extern crate llvm;
 use llvm::*;
 
-
 #[link(name = "ffi")]
 extern "C" {}
 

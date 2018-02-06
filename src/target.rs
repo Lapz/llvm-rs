@@ -2,7 +2,7 @@ use libc::{c_char, c_uint};
 use ffi::target_machine::*;
 use ffi::target::*;
 use ffi::core::LLVMDisposeMessage;
-use std::ffi::{CStr, CString};
+use std::ffi::CStr;
 use std::fmt;
 use types::Type;
 use util;
@@ -11,12 +11,11 @@ use pass_manager::PassManager;
 
 /// Represents an LLVM Target
 pub struct TargetData(LLVMTargetDataRef);
+native_ref!(&TargetData = LLVMTargetDataRef);
 
 impl TargetData {
     /// Create a target data from a target layout string.
     pub fn from_string(rep: &str) -> TargetData {
-        let c_rep = CString::new(rep).unwrap();
-
         TargetData(unsafe { LLVMCreateTargetData(rep.as_ptr() as *const c_char) })
     }
 
@@ -101,7 +100,6 @@ impl Target {
 pub struct TargetMachine(*mut LLVMOpaqueTargetMachine);
 
 impl TargetMachine {
-    
     pub fn new() -> Result<TargetMachine, String> {
         let triple = unsafe { LLVMGetDefaultTargetTriple() };
 
@@ -145,19 +143,23 @@ impl TargetMachine {
         Ok(TargetMachine(target_machine))
     }
 
-    fn first_target(&self) -> Target {
+    pub fn first_target(&self) -> Target {
         unsafe { Target(LLVMGetFirstTarget()) }
     }
 
-    fn next_target(&self, target: Target) -> Target {
+    pub fn next_target(&self, target: Target) -> Target {
         unsafe { Target(LLVMGetNextTarget(target.0)) }
     }
 
-    fn get_description(&self, target: Target) -> &str {
-        unimplemented!()
+    pub fn get_description(&self, target: &Target) -> &str {
+        unsafe {
+            CStr::from_ptr(LLVMGetTargetDescription(target.0))
+                .to_str()
+                .expect("unable to get decription")
+        }
     }
 
-    fn analysis_passes(&self, pass_manager: &PassManager) {
+    pub fn analysis_passes(&self, pass_manager: &PassManager) {
         unsafe { LLVMAddAnalysisPasses(self.0, pass_manager.into()) }
     }
 }

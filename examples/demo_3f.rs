@@ -1,7 +1,10 @@
 extern crate llvm;
 extern crate llvm_sys;
 use llvm::*;
-use llvm::Attribute::*;
+
+#[link(name = "ffi")]
+extern "C" {}
+
 fn main() {
     let ctx = Context::new();
     let module = Module::new("simple", &ctx);
