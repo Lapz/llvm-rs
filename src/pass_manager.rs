@@ -5,12 +5,14 @@ use cbox::CSemiBox;
 use std::marker::PhantomData;
 use module::Module;
 use ffi::transforms::scalar::*;
+use ffi::transforms::util::*;
 use ffi::transforms::vectorize::*;
 use ffi::transforms::ipo::*;
 use value::Value;
 use ffi::LLVMPassRegistry;
 use ffi::core::LLVMGetGlobalPassRegistry;
 use ffi::initialization::*;
+
 
 /// The struct responsible for setting up optimization sequences
 pub struct PassManager(PhantomData<[u8]>);
@@ -93,7 +95,7 @@ add_pass!{add_type_based_alias_nalysis,LLVMAddTypeBasedAliasAnalysisPass}
 add_pass!{add_verifier,LLVMAddVerifierPass}
 
 // Vectorization transformations
-add_pass!{add_bb_vectorize,LLVMAddBBVectorizePass}
+
 add_pass!{add_loop_vectorize,LLVMAddLoopVectorizePass}
 add_pass!{add_slp_vectorize,LLVMAddSLPVectorizePass}
 

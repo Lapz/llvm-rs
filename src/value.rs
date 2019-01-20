@@ -85,7 +85,7 @@ impl Value {
     /// Sets the name of this value
     pub fn set_name(&self, name: &str) {
         let c_name = CString::new(name).unwrap();
-        unsafe { core::LLVMSetValueName(self.into(), c_name.as_ptr()) }
+        unsafe { core::LLVMSetValueName2(self.into(), c_name.as_ptr(),name.len()) }
     }
     /// Returns the type of this value
     pub fn get_type(&self) -> &Type {
